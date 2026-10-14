@@ -130,7 +130,6 @@ public class YandexDiskTests {
             response.statusCode(201);
         }
         createdResources.add(TEST_FOLDER);
-        createdResources.add(href);
     }
 
     @Order(7)
@@ -208,7 +207,19 @@ public class YandexDiskTests {
         if (response.extract().statusCode() == 202) {
             String operationHref = response.extract().body().path("href");
 
+            boolean completed = false;
 
+            while (!completed) {
+                String status = API.GETOperationStatus(operationHref)
+                        .extract()
+                        .body()
+                        .path("status");
+                if (status.equals("success")) {
+                    completed = true;
+                } else if (status.equals("failed")) {
+                    Assertions.fail(status);
+                }
+            }
         } else {
             response.statusCode(201);
         }
@@ -217,6 +228,7 @@ public class YandexDiskTests {
 
     @Test
     @Order(13)
+    @DisplayName("перемещение несущ ресурса")
     void testMoveUnexistedFile() {
         API.POSTMoveREsourse(TEST_FOLDER + "/" + "invalid_file_name.txt", "/" + "invalid_file_name.txt")
                 .statusCode(404);
@@ -226,8 +238,7 @@ public class YandexDiskTests {
     @Order(14)
     @DisplayName("удаление существующего ресурса")
     void testDeleteExistedFile() {
-        testPostFile();
-        API.DELETEResource(TEST_FOLDER + "/" + TEST_FILE.getName())
+        API.DELETEResource("/" + TEST_FILE.getName())
                 .statusCode(204);
     }
 
