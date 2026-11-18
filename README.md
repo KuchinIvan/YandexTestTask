@@ -30,5 +30,6 @@
 YANDEX_DISK_OAUTH_TOKEN= `CHANGE_ME`
 ```
 ## Запуск
-
+```ssh
 mvn test
+```
